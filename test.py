@@ -13,12 +13,13 @@ A=g.getA()
 
 """PageRAnk"""
 n=g.getN()
+pr=g.pageRank()
+
 
 PMUconfig1=PMUconfiguration.PMUconfiguration(n)
 
 
 PMUconfig1.GTP1(A)
 
-print(g.isobs(PMUconfig1))
-#print(A)
-#print(PMUconfig2.getPMUconfig())
+PMUconfig1.GTP2(g,pr)
+print(PMUconfig1.getPMUconfig())

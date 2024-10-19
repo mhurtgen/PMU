@@ -28,9 +28,28 @@ class PMUconfiguration:
                     self.addPMU(i)
        
 
-    def GTP2(self,A):
+    def GTP2(self,g,pr):
         """second part of graph theoretic procedure:"""
         """placement of PMUs at most important nodes"""
-        return
+        """pr: PageRank classification"""
+
+        """sorting of pagerank list of nodes in descending order"""
+        lg=len(pr)
+        Node_PR=list()
+        for i in range(0,lg):
+            Node_PR.append([i,pr[i]])
+        Node_PR.sort(key=lambda x:x[1],reverse=True)
+        
+        """Placement of PMUs"""
+        obsvec=g.observability(self)
+        for a in Node_PR:
+            i=a[0]
+            if (obsvec[i]==0):
+                self.addPMU(i)
+            obsvec=g.observability(self)    
+            o=g.isobs(self)
+            if (o==1):break
+
+        
 
 
