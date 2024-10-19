@@ -127,23 +127,26 @@ class Graph:
                 steadyStateVectorOfA = self.findSteadyState(M, n)
                 return steadyStateVectorOfA
 
-        def observability(self,PMUveconfig):
+        def observability(self,PMUconfig):
                 """determines if PMU coonfiguration makes system observable"""
+                """returns binary vector (1 if node is observable, 0 otherwise)"""
                 A=self.getA()
                 """obsvec:observability vector"""
                 obsvec=np.zeros(self.N)
                 PMUvec=PMUconfig.getPMUconfig()
                 lg=len(PMUvec)
                 for i in range(0,lg):
-                       b_pmu=PMUvec(i)
+                       b_pmu=PMUvec[i]
                        if (b_pmu==1):
                                obsvec[i]=1
-                               for j in range (0,N):
+                               for j in range (0,lg):
                                        if (A[i][j]==1):
                                                obsvec[j]=1
                 return obsvec
 
-        def isobs(self,obsvec):
+        def isobs(self,PMUconfig):
+                """checks if all nodes are observable"""
+                obsvec=self.observability(PMUconfig)
                 l=len(obsvec)
                 for i in range(0,l):
                         if obsvec[i]==0:

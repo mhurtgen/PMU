@@ -14,21 +14,11 @@ A=g.getA()
 """PageRAnk"""
 n=g.getN()
 
-
-          
-v=g.pageRank()
-print(v)
-
-PMUconfig=PMUconfiguration.PMUconfiguration(n)
+PMUconfig1=PMUconfiguration.PMUconfiguration(n)
 
 
-u=np.zeros(n)
-for i in range(0,n):
-     sum=0
-     for j in range(0,n):
-          sum=sum+A[i][j]
-     if (sum==1):
-          PMUconfig.addPMU(i)
+PMUconfig1.GTP1(A)
 
-print(PMUconfig.getPMUconfig())
-
+print(g.isobs(PMUconfig1))
+#print(A)
+#print(PMUconfig2.getPMUconfig())
