@@ -11,14 +11,28 @@ class ILS():
         obs=0
         for i in range(0,self.T):
             
-                PMUconfig=G.perturb(PMUconfig)
-                print('obs=',G.isobs(PMUconfig))
-                PMUconfig=G.removeextra(PMUconfig)
-            
-        return PMUconfig
+                PMUconfig2=G.perturb(PMUconfig)
+                # print('obs=',G.isobs(PMUconfig))
+                for i in range(0,5):
+                    PMUconfig2=G.removeextra(PMUconfig2)
+
+        l=PMUconfig.getnPMU()
+        l2=PMUconfig2.getnPMU()
+        
+        if (l2<l):
+            return PMUconfig2
+        else:
+            return PMUconfig
 
     
-    def IterationsLocalSearch(self,G,PMUconfig):
+    def IteratedLocalSearch(self,G,PMUconfig):
+
+        npmus=2
         for i in range(0,self.M):
-            PMUconfig=self.locsearch(G,PMUconfig)
             PMUconfig=G.randomadditionPMUs(PMUconfig,npmus)
+            PMUconfig=self.locsearch(G,PMUconfig)
+            
+            #print(PMUconfig.getPMUnodes())
+            
+
+        return PMUconfig

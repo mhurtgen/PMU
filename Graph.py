@@ -193,7 +193,7 @@ class Graph:
         def randomadditionPMUs(self,PMUconfig,npmus):
                 A=self.getA()
                 endnodes=self.endnodes()
-                nodes=PMUconfig.getcandidates()
+                nodes=PMUconfig.getcandidates(endnodes)
 
                 for i in range(0,npmus):
                         p=random.choice(nodes)

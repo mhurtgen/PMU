@@ -25,8 +25,10 @@ pmu1=PMUconfig1.getPMUnodes()
 print(pmu1)
 
 """Iterated Local search starting from PMU configuration obtained by PPA"""
-ILS1=ILS.ILS(10,60)
-PMUconfig=ILS1.locsearch(g,PMUconfig1)
+ILS1=ILS.ILS(10,10)
+
+#PMUconfig=ILS1.locsearch(g,PMUconfig1)
+PMUconfig=ILS1.IteratedLocalSearch(g,PMUconfig1)
 pmu2=PMUconfig.getPMUnodes()
 print(pmu2)
 print(g.isobs(PMUconfig))
