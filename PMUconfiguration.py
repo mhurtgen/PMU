@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np, random
 
 class PMUconfiguration:
     def __init__(self,N):
@@ -12,11 +12,22 @@ class PMUconfiguration:
 
     def getPMUconfig(self):
         return self.PMUvec
+
+    def getnPMU(self):
+        s=sum(self.PMUvec)
+        return s
+
+    def getPMUnodes(self):
+        pmu=list()
+        l=len(self.PMUvec)
+        for i in range(0,l):
+            if (self.PMUvec[i]==1):
+                pmu.append(i)
+        return pmu
     
-        
-    def GTP1(self,A):
-        """first part of graph theoretic procedure:"""
-        """placement of a PMU at each node with only one neighbour"""
+    def PPA1(self,A):
+        """first part of PageRank Placement Algorithm:"""
+        """placement of a PMU at adjacent node of nodes with only one neighbour"""
         n=len(A)
         
         for i in range(0,n):
@@ -25,21 +36,24 @@ class PMUconfiguration:
                 sum=sum+A[i][j]
              
             if (sum==1):
-                    self.addPMU(i)
+                for j in range(0,n):
+                    if (A[i][j]==1):
+                        self.addPMU(j)
        
 
-    def GTP2(self,g,pr):
-        """second part of graph theoretic procedure:"""
+    def PPA2(self,g,pr):
+        """second part of PageRank Placement Algorithm:"""
         """placement of PMUs at most important nodes"""
-        """pr: PageRank classification"""
+        """pr: PageRank classification of nodes"""
 
         """sorting of pagerank list of nodes in descending order"""
         lg=len(pr)
         Node_PR=list()
         for i in range(0,lg):
             Node_PR.append([i,pr[i]])
+       
         Node_PR.sort(key=lambda x:x[1],reverse=True)
-        
+      
         """Placement of PMUs"""
         obsvec=g.observability(self)
         for a in Node_PR:
@@ -50,6 +64,68 @@ class PMUconfiguration:
             o=g.isobs(self)
             if (o==1):break
 
+    
+            
+    def exchange(self,i,j):
+        self.PMUvec[i]=0
+        self.PMUvec[j]=1
         
+   
+    def getcandidates(self,endnodes):
+        """get potential nodes for PMU placement"""
+        
+        
+        l=len(self.PMUvec)
+        
+        e=len(endnodes)
+        """potential nodes"""
+        nodes=list(range(0,l))
 
+        for i in range(0,e):
+            nodes.remove(endnodes[i])
+        
+        pmu=self.getPMUnodes()
+        
+        lpmu=len(pmu)
+ 
+        for j in range(0,lpmu):
+            nodes.remove(pmu[j])
+        
+        return nodes
+        
+    def adjacentPMU(self,A,j):
+        """get pmus adjacent to a node, which make node observable"""
+        pmu=self.getPMUnodes()
+        chpmu=list()
+        n=len(A)
+        
+        for k in range(0,n):
+            if (A[j][k]==1):
+                if k in pmu:
+                     chpmu.append(k)
+        return chpmu
+    
+    def shuffle(self,endnodes,A):
+        
+        l=0
+        pmu=self.getPMUnodes()
+        nodes=self.getcandidates(endnodes)
+
+        #print('nodes=',nodes)##
+        while (l==0):
+            j=random.choice(nodes)
+            chpmu=self.adjacentPMU(A,j)
+            l=len(chpmu)
+        
+        #print('chpmu=',chpmu)##
+        p=random.choice(chpmu)
+   
+        """move pmu to random node j"""
+        self.exchange(p,j)
+       
+             
+            
+                       
+        
+        
 

@@ -177,7 +177,7 @@ class Graph:
                 endnodes=self.endnodes()
                 pmu=PMUconfig.getPMUnodes()
                 
-                while (obs==0)&(i<10):
+                while (obs==0):
                         
                         PMUconfig.shuffle(endnodes,A)
                         obs=self.isobs(PMUconfig)

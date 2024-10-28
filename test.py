@@ -1,4 +1,4 @@
-import Graph, numpy as np, PMUconfiguration
+import Graph, numpy as np, PMUconfiguration, ILS
 
 """ Example using Graph class""" 
 """IEEE14 power network """
@@ -21,17 +21,12 @@ PMUconfig1.PPA1(A)
 
 pr=g.pageRank()
 PMUconfig1.PPA2(g,pr)
+pmu1=PMUconfig1.getPMUnodes()
+print(pmu1)
 
-v1=PMUconfig1.getPMUconfig()
-print(v1)
-#PMUconfig1.shuffle(ed,A)
-#v2=PMUconfig1.getPMUconfig()
-#print(v2)
-PMUconfig2=g.perturb(PMUconfig1)
-v2=PMUconfig2.getPMUconfig()
-print(v2)
-
-g.representation('IEEE14', PMUconfig2)
-
-
-
+"""Iterated Local search starting from PMU configuration obtained by PPA"""
+ILS1=ILS.ILS(10,60)
+PMUconfig=ILS1.locsearch(g,PMUconfig1)
+pmu2=PMUconfig.getPMUnodes()
+print(pmu2)
+print(g.isobs(PMUconfig))
