@@ -1,6 +1,7 @@
-import numpy as np
+import numpy as np, random
 from scipy.optimize import LinearConstraint, milp
 import PMUconfiguration
+import graphviz, pageRank
 
 """get gain and adjacency matrix"""
 
@@ -10,6 +11,26 @@ class Graph:
                 self.N=N
                 self.branch=branch
 
+                
+        def representation(self,text,PMUconfig):#,Obsvec):
+                """representation of power system with colored nodes if pmu is present"""
+                g = graphviz.Graph(comment=text)
+                n=self.N
+
+                vecPMU=PMUconfig.getPMUconfig()
+                
+                for i in range(0,n):
+                        u=vecPMU[i]
+                        if (u==1):
+                                g.node(str(i),style='filled',fillcolor='0.051 0.718 0.627')
+                        else:
+                                g.node(str(i))
+                for el in self.branch:
+                        i=el[0]
+                        j=el[1]
+                        g.edge(str(i-1),str(j-1))
+                g.render('IEEE14.gv.pdf')
+        
         def getN(self):
                 return self.N
         
@@ -30,6 +51,27 @@ class Graph:
 
                 return A
 
+
+        def getAdj(self,A):
+             n=self.N
+             print(n)
+             Adj=np.zeros((n,n))
+             
+             
+             for k in range(0,n):
+                c=0
+                for j in range(0,n):
+                        if (A[k][j]==1):
+                                Adj[k][c]=j
+                                c=c+1
+                        
+             return Adj
+                     
+        def pageRank(self):
+                A=self.getA()
+                pr=pageRank.pageRank(A)
+                return pr
+                
         def getPDS(self):
                 """get vector giving power dominating set - optimal PMU configuration"""
                 """implementation of the integer linear programming formulation"""
@@ -58,75 +100,9 @@ class Graph:
                 
                 pos=np.nonzero(res.x)
 
-                return pos
+                return res.x
      
-        # normalize the matrix (make it a probability matrix (all cols sum to 1))
-        def normalizeAdjacencyMatrix(self):
-                A=self.getA()
-                n = len(A) # n = num of rows/cols in A
-                for j in range(len(A[0])):
-                        sumOfCol = 0
-                        for i in range(len(A)):
-                             sumOfCol += A[i][j]
-        
-                        if sumOfCol == 0: # adjust for dangling nodes (columns of zeros)
-                             for val in range(n):
-                                 A[val][j] = 1/n
-                             else:
-                                 for val in range(n):
-                                      A[val][j] = (A[val][j] / sumOfCol)
-                return A
-
-        # implement damping matrix using formula
-        # M = dA + (1-d)(1/n)Q, where Q is an array of 1's and d is the damping factor
-        def dampingMatrix(self):
-                A=self.getA()
-                n = len(A) # n = num of rows/cols in A
-                dampingFactor = 0.85
-                Q = [[1/n]*n]*n
-                arrA = np.array(A)
-                arrQ = np.array(Q)
-                arrM = np.add((dampingFactor)*arrA, (1-dampingFactor)*arrQ) # create damping matrix
-                return arrM
-
-        # find eigenvector corresponding to eigenvalue 1
-        def  findSteadyState(self,M, n):
-                # find eigenvectors
-                evectors = np.linalg.eig(M)[1]
     
-                # find eigenvalues
-                eigenValues = np.linalg.eig(M)[0]
-                lstEVals = []
-                for val in eigenValues:
-                        lstEVals.append(round(val))
-    
-                # find eigenvector with eigenvalue 1
-                idxWithEval1 = lstEVals.index(1)
-                steadyStateVector = evectors[:, idxWithEval1]
-    
-                # normalize steady state vector so its components sum to 1
-                lstVersionSteadyState = []
-                sumOfComps = 0
-                returnVector = []
-                for val in steadyStateVector:
-                        sumOfComps += val
-                        lstVersionSteadyState.append(val)
-                        
-                for val in lstVersionSteadyState:
-                        returnVector.append(val/sumOfComps)
-    
-                return returnVector
-
-        def pageRank(self):
-                A=self.getA()
-                n = len(A) # n = num of rows/cols in A
-                A = self.normalizeAdjacencyMatrix() 
-                M = self.dampingMatrix() 
-    
-                # find steady state vector
-                steadyStateVectorOfA = self.findSteadyState(M, n)
-                return steadyStateVectorOfA
-
         def observability(self,PMUconfig):
                 """determines if PMU coonfiguration makes system observable"""
                 """returns binary vector (1 if node is observable, 0 otherwise)"""
@@ -153,8 +129,79 @@ class Graph:
                                 return 0
                 return 1
                 
-                             
+        def endnodes(self):
+                """get list of endnodes in graph (nodes with only one neighbour)"""
+                endnodes=list()
+                n=self.N
+                A=self.getA()
+                for i in range(0,n):
+                        sum=0
+                        for j in range(0,n):
+                                sum=sum+A[i][j]
+             
+                        if (sum==1):
+                                endnodes.append(i)
+                
+                return endnodes
 
+        def removeextra(self,PMUconfig):
+                """test if a pmu can be removed while keeping observability."""
+                vecPMU=PMUconfig.getPMUconfig()
 
+                N=len(vecPMU)
+
+                for i in range(1,N):
+                        if (vecPMU[i]==1):
+                                vecPMU[i]=0
+                                PMUconfig.setPMUconfig(vecPMU)
+                                obs=self.isobs(PMUconfig)
+                                if (obs==1):
+                                        return PMUconfig
+                                else:
+                                        vecPMU[i]=1
+                return PMUconfig
+                                
+        def perturb(self,PMUconfig):
+                """get different observable PMU configuration """
+                """variables obs (observability) i (iteration)"""
+                obs=0
+                i=0
+                """PMUconfig0: initial PMU configuration"""
+                v0=PMUconfig.getPMUconfig()
+                n=len(v0)
+                PMUconfig0=PMUconfiguration.PMUconfiguration(n)
+                PMUconfig0.setPMUconfig(v0)
+                
+                """info PMUconfig and graph"""
+                A=self.getA()
+                endnodes=self.endnodes()
+                pmu=PMUconfig.getPMUnodes()
+                
+                while (obs==0)&(i<10):
+                        
+                        PMUconfig.shuffle(endnodes,A)
+                        obs=self.isobs(PMUconfig)
+                        i=i+1
+
+                if (obs==0):
+                        return PMUconfig0
+                else:
+                        return PMUconfig
+                
+                        
+
+        def randomadditionPMUs(self,PMUconfig,npmus):
+                A=self.getA()
+                endnodes=self.endnodes()
+                nodes=PMUconfig.getcandidates()
+
+                for i in range(0,npmus):
+                        p=random.choice(nodes)
+                        PMUconfig.addPMU(p)
+
+                        nodes.remove(p)
+
+                return PMUconfig
+                        
                 
         
