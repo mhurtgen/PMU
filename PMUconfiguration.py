@@ -5,18 +5,39 @@ class PMUconfiguration:
         self.PMUvec=np.zeros(N)
 
     def addPMU(self,i):
+        """add PMU at node i"""
         self.PMUvec[i]=1
-        
+
     def setPMUconfig(self,v):
-        self.PMUvec=v
+        """set PMUvec"""
+        l=len(v)
+        for i in range(0,l):
+            self.PMUvec[i]=v[i]
+
+    def copyPMUconfig(self,PMUconfig):
+        """copy PMUconfig"""
+        v=PMUconfig.getPMUconfig()
+        self.setPMUconfig(v)
+        return self
 
     def getPMUconfig(self):
         return self.PMUvec
 
     def getnPMU(self):
-        s=sum(self.PMUvec)
+        """return number of PMUs in configuration"""
+        s=int(sum(self.PMUvec))
         return s
-
+    
+    def testPMUconfig(self,PMUconfigmin):
+        """test if PMUconfig has less number of PMUs than self"""
+        n_min=PMUconfigmin.getnPMU()
+        n=self.getnPMU()
+        if (n<n_min):
+            PMUconfigmin.copyPMUconfig(self)
+            return self
+        else:
+            return PMUconfigmin
+        
     def getPMUnodes(self):
         pmu=list()
         l=len(self.PMUvec)
@@ -70,9 +91,10 @@ class PMUconfiguration:
         self.PMUvec[i]=0
         self.PMUvec[j]=1
         
-   
+
+        
     def getcandidates(self,endnodes):
-        """get potential nodes for PMU placement"""
+        """get potential nodes for PMU placement - second stage of ILS random addition of PMUs"""
         
         
         l=len(self.PMUvec)
@@ -80,7 +102,7 @@ class PMUconfiguration:
         e=len(endnodes)
         """potential nodes"""
         nodes=list(range(0,l))
-
+                
         for i in range(0,e):
             nodes.remove(endnodes[i])
         
@@ -105,23 +127,31 @@ class PMUconfiguration:
                      chpmu.append(k)
         return chpmu
     
-    def shuffle(self,endnodes,A):
-        
+    def shuffle(self,endnodes,A):        
         l=0
-        pmu=self.getPMUnodes()
+        vec=self.getPMUconfig()
+        l=len(vec)
+
+        vec2=np.zeros(l)
+        for i in range(0,l):
+            vec2[i]=vec[i]
+        
         nodes=self.getcandidates(endnodes)
 
-        #print('nodes=',nodes)##
-        while (l==0):
-            j=random.choice(nodes)
-            chpmu=self.adjacentPMU(A,j)
-            l=len(chpmu)
         
-        #print('chpmu=',chpmu)##
-        p=random.choice(chpmu)
-   
-        """move pmu to random node j"""
-        self.exchange(p,j)
+        j=random.choice(nodes)
+
+        chpmu=self.adjacentPMU(A,j)
+        p=random.choice(chpmu) #cha
+        #print('from ',p, ' to ',j)
+        """move adjacent pmu to random node j"""
+        vec2[p]=0
+        vec2[j]=1
+        
+        return vec2
+        
+#        #self.exchange(p,j)v
+#        return self    
        
              
             

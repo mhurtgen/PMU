@@ -2,37 +2,49 @@
 import PMUconfiguration, Graph
 
 class ILS():
-    def __init__(self,T,M):
+    def __init__(self,T,M,N):
         self.T=T
         self.M=M
+        self.N=N
 
     def locsearch(self,G,PMUconfig):
         """local search starting from given PMU configuration"""
         obs=0
-        for i in range(0,self.T):
-            
-                PMUconfig2=G.perturb(PMUconfig)
-                # print('obs=',G.isobs(PMUconfig))
-                for i in range(0,5):
-                    PMUconfig2=G.removeextra(PMUconfig2)
-
-        l=PMUconfig.getnPMU()
-        l2=PMUconfig2.getnPMU()
+        j=0        
         
-        if (l2<l):
-            return PMUconfig2
-        else:
-            return PMUconfig
+        
+        while (j<self.T):
+                PMUconfig=G.perturb(PMUconfig)
+                
+                PMUconfig=G.removeextra(PMUconfig)
+               
+                j=j+1
+        return PMUconfig
 
     
-    def IteratedLocalSearch(self,G,PMUconfig):
+    def IteratedLocalSearch(self,G,PMUconfig,npmu):
+        obs=0
+        npmu=2
 
-        npmus=2
+        #print(PMUconfig.getPMUconfig())
+        
+        PMUconfigmin=PMUconfiguration.PMUconfiguration(self.N)
+        PMUconfigmin=PMUconfigmin.copyPMUconfig(PMUconfig)
+        nmin=PMUconfig.getnPMU()
+        
         for i in range(0,self.M):
-            PMUconfig=G.randomadditionPMUs(PMUconfig,npmus)
-            PMUconfig=self.locsearch(G,PMUconfig)
-            
-            #print(PMUconfig.getPMUnodes())
-            
+            #while (obs==0):
+                
+                PMUconfig=self.locsearch(G,PMUconfig)
+                
+                n=PMUconfig.getnPMU()
+                
+                if (n<nmin):
+                    PMUconfigmin=PMUconfigmin.copyPMUconfig(PMUconfig)
+                    nmin=PMUconfigmin.getnPMU()
+                    print('nmin=',nmin)
+                    
+                #print('i=',i,'n=',n,'nmin=',nmin)
+                PMUconfig=G.randomadditionPMUs(PMUconfig,npmu)
 
-        return PMUconfig
+        return PMUconfigmin

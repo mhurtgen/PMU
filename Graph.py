@@ -26,10 +26,10 @@ class Graph:
                         else:
                                 g.node(str(i))
                 for el in self.branch:
-                        i=el[0]
-                        j=el[1]
+                        i=int(el[0])
+                        j=int(el[1])
                         g.edge(str(i-1),str(j-1))
-                g.render('IEEE14.gv.pdf')
+                g.render('IEEE57.gv.pdf')
         
         def getN(self):
                 return self.N
@@ -40,10 +40,11 @@ class Graph:
                 n=self.N
 
                 A=np.zeros((n,n))
-
+                
                 for el in self.branch:
-                        i=el[0]
-                        j=el[1]
+                        
+                        i=int(el[0])
+                        j=int(el[1])
 
                    
                         A[i-1][j-1]=1
@@ -120,6 +121,24 @@ class Graph:
                                                obsvec[j]=1
                 return obsvec
 
+        def observability2(self,PMUvec):
+                """determines if PMU coonfiguration makes system observable"""
+                """returns binary vector (1 if node is observable, 0 otherwise)"""
+                A=self.getA()
+                """obsvec:observability vector"""
+                obsvec=np.zeros(self.N)
+
+                lg=len(PMUvec)
+                for i in range(0,lg):
+                       b_pmu=PMUvec[i]
+                       if (b_pmu==1):
+                               obsvec[i]=1
+                               for j in range (0,lg):
+                                       if (A[i][j]==1):
+                                               obsvec[j]=1
+                return obsvec
+
+        
         def isobs(self,PMUconfig):
                 """checks if all nodes are observable"""
                 obsvec=self.observability(PMUconfig)
@@ -128,7 +147,18 @@ class Graph:
                         if obsvec[i]==0:
                                 return 0
                 return 1
-                
+
+        def isobs2(self,pmu):
+                """checks if all nodes are observable"""
+                obsvec=self.observability2(pmu)
+                l=len(obsvec)
+                for i in range(0,l):
+                        if obsvec[i]==0:
+                                return 0
+                return 1
+
+
+        
         def endnodes(self):
                 """get list of endnodes in graph (nodes with only one neighbour)"""
                 endnodes=list()
@@ -176,19 +206,28 @@ class Graph:
                 A=self.getA()
                 endnodes=self.endnodes()
                 pmu=PMUconfig.getPMUnodes()
+
+                PMUconfig2=PMUconfiguration.PMUconfiguration(n)
                 
+                #while (obs==0):
+#                while (i<40):
+
                 while (obs==0):
+                                                
+                        v=PMUconfig.shuffle(endnodes,A)
+                        PMUconfig2.setPMUconfig(v)
+
+                                                
+                        obs=self.isobs(PMUconfig2)
+                        if (obs==1) :
+                                PMUconfig=PMUconfig.copyPMUconfig(PMUconfig2)
+                                
+                                return PMUconfig
                         
-                        PMUconfig.shuffle(endnodes,A)
-                        obs=self.isobs(PMUconfig)
                         i=i+1
 
-                if (obs==0):
-                        return PMUconfig0
-                else:
-                        return PMUconfig
-                
-                        
+                return PMUconfig0
+
 
         def randomadditionPMUs(self,PMUconfig,npmus):
                 A=self.getA()
@@ -204,4 +243,20 @@ class Graph:
                 return PMUconfig
                         
                 
+
+"""                       if (obs==1):
+                             return PMUconfig
+                        i=i+1
+"""
+#                return PMUconfig0
+
+                        
+"""if (obs==0):
+                        return PMUconfig0
+                else:
+                        return PMUconfig"""
+                
+                        
+
+
         
