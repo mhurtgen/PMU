@@ -14,8 +14,8 @@ class ILS():
         
         
         while (j<self.T):
-                PMUconfig=G.perturb(PMUconfig)
-                
+                PMUconfig,i=G.perturb(PMUconfig)
+                if (i==1000): break
                 PMUconfig=G.removeextra(PMUconfig)
                
                 j=j+1
@@ -44,7 +44,7 @@ class ILS():
                     nmin=PMUconfigmin.getnPMU()
                     print('nmin=',nmin)
                     
-                #print('i=',i,'n=',n,'nmin=',nmin)
+                print('i=',i,'n=',n,'nmin=',nmin)
                 PMUconfig=G.randomadditionPMUs(PMUconfig,npmu)
 
         return PMUconfigmin
