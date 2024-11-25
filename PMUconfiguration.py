@@ -106,7 +106,47 @@ class PMUconfiguration:
                         obsvec[i]=1
                         obsvec[j]=1
         return I_measurements, obsvec
+    
+    def addImes(self,j,AdjNode_PR,obs,obsvec,I_measurements,nImeas,nmeas):
 
+
+        if (nmeas==nImeas):
+            return obsvec,I_measurements
+        nAdj=len(AdjNode_PR)
+        brmes=list()
+        k=0
+        
+        for a in AdjNode_PR:
+            i=a[0]
+            if (nmeas<nImeas):
+
+                print('i=',i)
+            
+                if (obsvec[i]==obs):
+                    print('measurement ',j,'-',i)
+                    I_measurements.append([j,i])
+                    brmes.append(i)
+                    obsvec[i]=1
+                    nmeas=nmeas+1
+
+            
+        
+        if (nmeas<nImeas):
+            k=0
+            for a in AdjNode_PR:
+                i=a[0]
+                if (i not in brmes):
+                    print('2')
+                    I_measurements.append([j,i])
+                    brmes.append(i)
+                    obsvec[i]=1
+                    nmeas=nmeas+1
+                if (nmeas==nImeas):break
+                k=k+1
+            
+        return obsvec,I_measurements
+                
+            
     def selectbranches(self,pr,A,j,obsvec,I_measurements,nImeas):
         """select branches for PMU current measurements"""
         nmeas=0
@@ -119,21 +159,10 @@ class PMUconfiguration:
         AdjNode_PR.sort(key=lambda x:x[1],reverse=True)
         print('node ',j)
         print(AdjNode_PR)
-        for a in AdjNode_PR:
-            i=a[0]
-            I_measurements.append([j,i])
-            obsvec[i]=1
-            nmeas=nmeas+1
-            """
-            if (obsvec[i]==0):
-                print('measurement ',j,'-',i)
-                I_measurements.append([j,i])
-                obsvec[i]=1
-                nmeas=nmeas+1
-            """
-            if (nmeas==nImeas):
-                return obsvec, I_measurements
-            
+
+        obsvec,I_measurements=self.addImes(j,AdjNode_PR,0,obsvec,I_measurements,nImeas,nmeas)
+       
+
         return obsvec, I_measurements
 
 
@@ -142,6 +171,7 @@ class PMUconfiguration:
         """second part of PageRank Placement Algorithm:"""
         """placement of PMUs at most important nodes"""
         A=g.getA()
+        n=g.getN()
         """pr: PageRank classification of nodes"""
         pr=g.pageRank()
         """sorting of pagerank list of nodes in descending order"""
@@ -153,7 +183,7 @@ class PMUconfiguration:
         Node_PR.sort(key=lambda x:x[1],reverse=True)
       
         """Placement of PMUs"""
-        obsvec=g.observability(self)
+        obsvec=np.zeros(n)
         for a in Node_PR:
             i=a[0]
             if (obsvec[i]==0):
@@ -164,7 +194,9 @@ class PMUconfiguration:
                 obsvec, I_measurements=self.selectbranches(pr,A,i,obsvec,I_measurements,n_Imeas)
 
             o=g.isobs_constr(obsvec)
+            print('o=',o)
             if (o==1):
+                print('obsvec=',obsvec)
                 return I_measurements
         return I_measurements
    

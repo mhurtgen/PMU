@@ -59,7 +59,7 @@ class Graph:
                         i=int(el[0])
                         j=int(el[1])
                         b=self.test_branch_mes(Imeas,i,j)
-                        print(b)
+                        #print(b)
                         if (b==1):
                               g.edge(str(i-1),str(j-1),style='bold')
                         else:
