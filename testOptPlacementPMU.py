@@ -1,11 +1,11 @@
 import OptPlacementPMU, pickle as p, random, numpy as np, Graph
+from yaml import load, dump
 
 
 
-
-with open('case14.pickle','rb') as f:
+with open('case118.pickle','rb') as f:
    branch=p.load(f)
-N=14
+N=118
 print('b=',branch)
 
 
@@ -26,5 +26,8 @@ n_pmu=PMUconfigmin.getnPMU()
 print(n_pmu)
 pmu1=PMUconfigmin.getPMUnodes()
 print(pmu1)
+with open('pmuIEEE118.yaml', 'w') as file:
+    #dump(n_pmu,file)
+    dump(pmu1,file)
 
-G.rperesentation('IEEE14',PMUconfigPPA)
+G.representation('IEEE118',PMUconfigmin)

@@ -1,9 +1,8 @@
 import numpy as np, random
 from scipy.optimize import LinearConstraint, milp
-import PMUconfiguration
+import PMUconfiguration, PMUconfiguration_zeroinj
 import graphviz, pageRank
 
-"""get gain and adjacency matrix"""
 
 class Graph:
 
@@ -12,9 +11,9 @@ class Graph:
                 self.branch=branch
 
                 
-        def representation(self,text,PMUconfig):#,Obsvec):
+        def representation(self,PMUconfig):#,Obsvec):
                 """representation of power system with colored nodes if pmu is present"""
-                g = graphviz.Graph(comment=text)
+                g = graphviz.Graph()
                 n=self.N
 
                 vecPMU=PMUconfig.getPMUconfig()
@@ -22,14 +21,14 @@ class Graph:
                 for i in range(0,n):
                         u=vecPMU[i]
                         if (u==1):
-                                g.node(str(i),style='filled',fillcolor='0.051 0.718 0.627')
+                                g.node(str(i),style='filled',fillcolor='green')
                         else:
                                 g.node(str(i))
                 for el in self.branch:
                         i=int(el[0])
                         j=int(el[1])
                         g.edge(str(i-1),str(j-1))
-                filename='IEEE'+str(self.N)+'.gv.pdf'
+                filename='IEEE'+str(self.N)
                 g.render(filename)
 
         def test_branch_mes(self,Imeas,i,j):
@@ -42,33 +41,7 @@ class Graph:
                          
                          return 1
                 return 0
-        def representation_constr(self,text,PMUconfig,nImes,Imeas):#,Obsvec):
-                """representation of power system with colored nodes if pmu is present"""
-                g = graphviz.Graph(comment=text)
-                n=self.N
-
-                vecPMU=PMUconfig.getPMUconfig()
-                
-                for i in range(0,n):
-                        u=vecPMU[i]
-                        if (u==1):
-                                g.node(str(i),style='filled',fillcolor='0.051 0.718 0.627')
-                        else:
-                                g.node(str(i))
-                for el in self.branch:
-                        i=int(el[0])
-                        j=int(el[1])
-                        b=self.test_branch_mes(Imeas,i,j)
-                        #print(b)
-                        if (b==1):
-                              g.edge(str(i-1),str(j-1),style='bold')
-                        else:
-                              g.edge(str(i-1),str(j-1))
-
-                filename='IEEE'+str(self.N)+'_'+str(nImes)+'.gv.pdf'
-                g.render(filename)
-                
- 
+        
         
         def getN(self):
                 return self.N
@@ -253,8 +226,6 @@ class Graph:
 
                 PMUconfig2=PMUconfiguration.PMUconfiguration(n)
                 
-                #while (obs==0):
-#                while (i<40):
 
                 while (obs==0)&(i<1000):
                                                 
