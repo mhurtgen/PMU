@@ -186,6 +186,8 @@ zero injection node is also observed, then the remaining adjacent node is also o
                 for el in self.branch:
                         i=int(el[0])
                         j=int(el[1])
-                        g.edge(str(i-1),str(j-1))
-                filename='IEEE'+str(self.N)+'_zeroinj'
+                        g.edge(str(i),str(j))
+                filename='Figure/IEEE'+str(self.N)+'_zeroinj'
                 g.render(filename)
+
+     

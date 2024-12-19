@@ -3,48 +3,52 @@ import yaml
 from yaml import load, dump
 
 """
-with open('case14.pickle','rb') as f:
+with open('Grids/branchcase14.pickle','rb') as f:
    branch=p.load(f)
 
-with open('buscase14.pickle','rb') as f:
+with open('Grids/buscase14.pickle','rb') as f:
    bus=p.load(f)
 
-with open('gencase14.pickle','rb') as f:
+with open('Grids/gencase14.pickle','rb') as f:
    gen=p.load(f)
 
 N=14
 
-"""
+with open('Results/pmuIEEE14.yaml','r') as f:
+   pmu=yaml.safe_load(f)
 
-"""
-with open('case57.pickle','rb') as f:
+
+
+with open('Grids/branchcase57.pickle','rb') as f:
    branch=p.load(f)
 
-with open('buscase57.pickle','rb') as f:
+with open('Grids/buscase57.pickle','rb') as f:
    bus=p.load(f)
 
-with open('gencase57.pickle','rb') as f:
+with open('Grids/gencase57.pickle','rb') as f:
    gen=p.load(f)
 
 N=57
 
-with open('pmuIEEE57.yml','r') as f:
+with open('Results/pmuIEEE57.yaml','r') as f:
    pmu=yaml.safe_load(f)
 
-"""
 
-with open('case118.pickle','rb') as f:
+"""
+with open('Grids/branchcase118.pickle','rb') as f:
    branch=p.load(f)
 
-with open('buscase118.pickle','rb') as f:
+with open('Grids/buscase118.pickle','rb') as f:
    bus=p.load(f)
 
-with open('gencase118.pickle','rb') as f:
+with open('Grids/gencase118.pickle','rb') as f:
    gen=p.load(f)
 
 N=118
 
-with open('pmuIEEE118.yaml','r') as f:
+
+
+with open('Results/pmuIEEE118.yaml','r') as f:
    pmu=yaml.safe_load(f)
 
 
@@ -53,7 +57,7 @@ G=Graph_zeroinjection.Graph_zeroinjection(N,branch,bus,gen)
 OptPlacement_zeroinj=OptPlacementPMU_zeroinj.OptPlacementPMU_zeroinj(N,branch,bus,gen)
 
 
-PMUconfig0=PMUconfiguration_zeroinj.PMUconfiguration(N)
+PMUconfig0=PMUconfiguration_zeroinj.PMUconfiguration_zeroinj(N)
 #PMUconfig0=PMUconfiguration.PMUconfiguration(N)
 
 PMUconfig0.setPMUvec(pmu)
@@ -66,15 +70,17 @@ n_pmu=PMUconfigmin.getnPMU()
 print(n_pmu)
 pmu1=PMUconfigmin.getPMUnodes()
 print(pmu1)
+
+#PMUconfigmin.export()
+
 G.representation(PMUconfigmin)
-"""
-with open('pmuIEEE57.yml', 'w') as file:
-    #dump(n_pmu,file)
+
+with open('Results/pmuIEEE118_zeroinj.yml', 'w') as file:
     dump(pmu1,file)
 
 
 
-
+"""
 vec=np.zeros((N))
 pmu=[1,8,10,12]
 

@@ -3,10 +3,12 @@ from yaml import load, dump
 
 
 
-with open('case118.pickle','rb') as f:
+with open('Grids/branchcase118.pickle','rb') as f:
    branch=p.load(f)
+
+
 N=118
-print('b=',branch)
+
 
 
 G=Graph.Graph(N,branch)
@@ -19,15 +21,14 @@ PMUconfigPPA=OptPlacement.PPA()
 n_pmu=PMUconfigPPA.getnPMU()
 print(n_pmu)
 pmu1=PMUconfigPPA.getPMUnodes()
-print(pmu1)
+#print(pmu1)
 
 PMUconfigmin=OptPlacement.ILS()
 n_pmu=PMUconfigmin.getnPMU()
 print(n_pmu)
 pmu1=PMUconfigmin.getPMUnodes()
 print(pmu1)
-with open('pmuIEEE118.yaml', 'w') as file:
-    #dump(n_pmu,file)
-    dump(pmu1,file)
 
-G.representation('IEEE118',PMUconfigmin)
+PMUconfigmin.export()
+
+G.representation(PMUconfigmin)

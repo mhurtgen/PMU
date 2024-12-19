@@ -33,3 +33,15 @@ class PMUconfiguration_zeroinj(PMUconfiguration):
         
         return vec2
         
+    def export(self):
+        N=len(self.PMUvec)
+
+        filename='Results/pmuIEEE'+str(N)+'_zeroinj.yaml'
+        pmu=self.getPMUnodes()
+
+        with open(filename, 'w') as file:
+            dump(pmu,file)
+
+        
+
+        

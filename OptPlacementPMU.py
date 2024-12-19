@@ -1,8 +1,6 @@
 import Graph, PMUconfiguration, pickle as p, ILS
 
-""" Example using Graph class""" 
-"""IEEE14 power network """
-#branch=[[1,2],[1,5],[2,3],[2,4],[2,5],[3,4],[4,5],[4,7],[4,9],[5,6],[6,11],[6,12],[6,13],[7,8],[7,9],[9,10],[9,14],[10,11],[12,13],[13,14]]
+
 class OptPlacementPMU:
     def __init__(self,N,branch):
          self.g=Graph.Graph(N,branch)
@@ -45,8 +43,10 @@ class OptPlacementPMU:
          n,A,ed=self.getinfo()
          
          PMUconfig=self.PPA()
-         
-         ILS1=ILS.ILS(10,60,n)
+
+         #ILS1=ILS.ILS(10,10,n)
+         #ILS1=ILS.ILS(10,30,n)
+         ILS1=ILS.ILS(20,30,n)
          PMUconfig=ILS1.locsearch(self.g,PMUconfig)
          PMUconfigmin=ILS1.IteratedLocalSearch(self.g,PMUconfig,2)
          n_min=PMUconfigmin.getnPMU()
