@@ -53,22 +53,4 @@ class OptPlacementPMU:
          print(n_min)
          return PMUconfigmin
      
-    def PPA_constr(self, n_Imeas):
-
-         n,A,ed=self.getinfo()
-         """PageRAnk"""
-
-         PMUconfig=PMUconfiguration.PMUconfiguration(n)
-
-         """Implementing PageRank Placement Algorithm for PMU placement"""
-         I_measurements, obsvec=PMUconfig.PPA1_constr(A)
-
-         pr=self.g.pageRank()
-         I_measurements=PMUconfig.PPA2_constr(self.g,n_Imeas,I_measurements,obsvec)
-         n=PMUconfig.getnPMU()
-         print(n)
-         pmu1=PMUconfig.getPMUnodes()
-         print(pmu1)
-         return PMUconfig, I_measurements
-
-
+    

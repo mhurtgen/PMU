@@ -1,5 +1,5 @@
 
-import PMUconfiguration, Graph
+import PMUconfiguration, Graph, Graph_zeroinjection
 
 class ILS():
     def __init__(self,T,M,N):
@@ -14,6 +14,9 @@ class ILS():
         
         
         while (j<self.T):
+                
+                pmu=PMUconfig.getPMUnodes()
+                
                 PMUconfig,i=G.perturb(PMUconfig)
                 if (i==1000): break
                 PMUconfig=G.removeextra(PMUconfig)
@@ -26,8 +29,7 @@ class ILS():
         obs=0
         npmu=2
 
-        #print(PMUconfig.getPMUconfig())
-        
+ 
         PMUconfigmin=PMUconfiguration.PMUconfiguration(self.N)
         PMUconfigmin=PMUconfigmin.copyPMUconfig(PMUconfig)
         nmin=PMUconfig.getnPMU()
@@ -43,8 +45,8 @@ class ILS():
                     PMUconfigmin=PMUconfigmin.copyPMUconfig(PMUconfig)
                     nmin=PMUconfigmin.getnPMU()
                     print('nmin=',nmin)
-                    
-                print('i=',i,'n=',n,'nmin=',nmin)
+                o=G.isobs(PMUconfig)    
+                print('i=',i,'n=',n,'nmin=',nmin,'obs=',o)
                 PMUconfig=G.randomadditionPMUs(PMUconfig,npmu)
 
         return PMUconfigmin

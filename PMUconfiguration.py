@@ -1,4 +1,5 @@
 import numpy as np, random
+from yaml import load, dump
 
 class PMUconfiguration:
     def __init__(self,N):
@@ -21,6 +22,7 @@ class PMUconfiguration:
         return self
 
     def getPMUconfig(self):
+        """returns binary vector giving nodes with PMUs"""
         return self.PMUvec
 
     def getPMUvec(self,pmu):
@@ -52,6 +54,7 @@ class PMUconfiguration:
             return PMUconfigmin
         
     def getPMUnodes(self):
+        """returns nodes with pmu"""
         pmu=list()
         l=len(self.PMUvec)
         for i in range(0,l):
@@ -123,9 +126,11 @@ class PMUconfiguration:
         pmu=self.getPMUnodes()
         
         lpmu=len(pmu)
- 
+        #print('pmu ',pmu)
         for j in range(0,lpmu):
-            nodes.remove(pmu[j])
+            #print('remove ',j,' ',pmu[j])
+            if (pmu[j] in nodes):
+                nodes.remove(pmu[j])
         
         return nodes
         
@@ -144,6 +149,7 @@ class PMUconfiguration:
     def shuffle(self,endnodes,A):        
         l=0
         vec=self.getPMUconfig()
+        
         l=len(vec)
 
         vec2=np.zeros(l)
@@ -167,7 +173,7 @@ class PMUconfiguration:
         vec2[p]=0
         vec2[j]=1
         
-        return vec2
+        return vec2, j
         
        
     def shuffle_zeroinj(self,endnodes,A):        
@@ -200,6 +206,17 @@ class PMUconfiguration:
             vec2[j]=1
         
             return vec2
+
+
+    def export(self):
+            N=len(self.PMUvec)
+            filename='Results/pmuIEEE'+str(N)+'.yaml'
+
+            pmu=self.getPMUnodes()
+
+            with open(filename, 'w') as file:
+                dump(pmu,file)
+
         
 
             

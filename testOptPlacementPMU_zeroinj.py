@@ -2,7 +2,7 @@ import PMUconfiguration_zeroinj, OptPlacementPMU_zeroinj, pickle as p, random, n
 import yaml
 from yaml import load, dump
 
-"""
+
 with open('Grids/branchcase14.pickle','rb') as f:
    branch=p.load(f)
 
@@ -18,7 +18,7 @@ with open('Results/pmuIEEE14.yaml','r') as f:
    pmu=yaml.safe_load(f)
 
 
-
+"""
 with open('Grids/branchcase57.pickle','rb') as f:
    branch=p.load(f)
 
@@ -33,8 +33,6 @@ N=57
 with open('Results/pmuIEEE57.yaml','r') as f:
    pmu=yaml.safe_load(f)
 
-
-"""
 with open('Grids/branchcase118.pickle','rb') as f:
    branch=p.load(f)
 
@@ -46,11 +44,9 @@ with open('Grids/gencase118.pickle','rb') as f:
 
 N=118
 
-
-
 with open('Results/pmuIEEE118.yaml','r') as f:
    pmu=yaml.safe_load(f)
-
+"""
 
 G=Graph_zeroinjection.Graph_zeroinjection(N,branch,bus,gen)
    
@@ -74,10 +70,10 @@ print(pmu1)
 #PMUconfigmin.export()
 
 G.representation(PMUconfigmin)
-
-with open('Results/pmuIEEE118_zeroinj.yml', 'w') as file:
+"""
+with open('Results/pmuIEEE1zeroinj.yml', 'w') as file:
     dump(pmu1,file)
-
+"""
 
 
 """

@@ -4,7 +4,7 @@ import graphviz
 import PMUconfiguration_zeroinj
 
 class Graph_zeroinjection(Graph):
-     """overloading of methods for Graphs with constraints on PMUs"""
+     """overloading of methods for Graphs with zero injections"""
 
      def __init__(self,N,branch,bus,gen):
          self.N=N
@@ -36,16 +36,7 @@ class Graph_zeroinjection(Graph):
                      
          return zero_injections
 
-     def get_adjacentnodes(self,i):
-         adjnodes=list()
-         A=self.getA()
-         n=len(A)
-         
-         for j in range(0,n):
-             if (A[i][j]==1):
-                 adjnodes.append(j)
-                     
-         return adjnodes
+     
 
      def obsadjnodes(self,adjnodes,obsvec):
           for i in adjnodes:
@@ -96,7 +87,7 @@ zero injection node is also observed, then the remaining adjacent node is also o
                          
                  
      def observability(self,PMUconfig):
-                """determines if PMU coonfiguration makes system observable"""
+                """determines if PMU configuration makes system observable"""
                 """returns binary vector (1 if node is observable, 0 otherwise)"""
                 A=self.getA()
                 
@@ -166,17 +157,26 @@ zero injection node is also observed, then the remaining adjacent node is also o
 
     
      def representation(self,PMUconfig):#,Obsvec):
-                """representation of power system with colored nodes if pmu is present"""
+                """representation of power system with green nodes if pmu is present, cyan nodes if node is a zero-injection node, yellow if it is observed by a pmu"""
                 g = graphviz.Graph()
                 n=self.N
                 zeroinj=self.get_zeroinj()
                 vecPMU=PMUconfig.getPMUconfig()
                 
                 for i in range(0,n):
-                        #j=i-1
+                        
                         u=vecPMU[i]
+                        
                         if (u==1):
+                                #set green color for nodes with pmu
                                 g.node(str(i),style='filled',fillcolor='green')
+                                #get adjacent nodes to pmu#
+                                adjPMU=self. get_adjacentnodes(i)
+                                #set yellow for nodes adjacent to pmu
+                                for k in adjPMU:
+                                      if (k+1 not in zeroinj):
+                                           g.node(str(k),style='filled',fillcolor='yellow')
+                                
                         elif (i+1 in zeroinj):
                                 g.node(str(i),style='filled',fillcolor='cyan')
                               

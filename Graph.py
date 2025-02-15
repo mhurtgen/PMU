@@ -27,20 +27,43 @@ class Graph:
                 for el in self.branch:
                         i=int(el[0])
                         j=int(el[1])
-                        g.edge(str(i-1),str(j-1))
-                filename='IEEE'+str(self.N)
+                        g.edge(str(i),str(j))
+                filename='Figure/IEEE'+str(self.N)
                 g.render(filename)
 
-        def test_branch_mes(self,Imeas,i,j):
-                """test if measurement is made on branch"""
-                for e in Imeas:
-                     u=int(e[0])+1
-                     v=int(e[1])+1
+        def representationtest(self,PMUconfig):#,Obsvec):
+                """representation of power system with green nodes if pmu is present, cyan nodes if node is a zero-injection node, yellow if it is observed by a pmu"""
+                g = graphviz.Graph()
+                n=self.N
+               
+                vecPMU=PMUconfig.getPMUconfig()
+                
+                for i in range(0,n):
+                        
+                        u=vecPMU[i]
+                        
+                        if (u==1):
+                                #set green color for nodes with pmu
+                                g.node(str(i),style='filled',fillcolor='green')
+                                #get adjacent nodes to pmu#
+                                adjPMU=self. get_adjacentnodes(i)
+                                #set yellow for nodes adjacent to pmu
+                                for k in adjPMU:
+                                           g.node(str(k),style='filled',fillcolor='yellow')
+                                
+                        
+                              
+                        else:
+                                g.node(str(i))
+                                
+                for el in self.branch:
+                        i=int(el[0])
+                        j=int(el[1])
+                        g.edge(str(i),str(j))
+                filename='Figure/IEEEtest'+str(self.N)
+                g.render(filename)
 
-                     if ((u==i) and (v==j)) or ((u==j) and (v==i)):# and v==j|u==j and v==i):
-                         
-                         return 1
-                return 0
+     
         
         
         def getN(self):
@@ -49,6 +72,7 @@ class Graph:
         def getA(self):
                 """get adjacency matrix"""
                 m=len(self.branch)
+                
                 n=self.N
 
                 A=np.zeros((n,n))
@@ -57,14 +81,24 @@ class Graph:
                         
                         i=int(el[0])
                         j=int(el[1])
-
-                   
-                        A[i-1][j-1]=1
-                        A[j-1][i-1]=1
+                       
+                        A[i][j]=1
+                        A[j][i]=1
 
                 return A
 
-
+        def get_adjacentnodes(self,i):
+                """get adjacent nodes to node i"""
+                adjnodes=list()
+                A=self.getA()
+                n=len(A)
+         
+                for j in range(0,n):
+                        if (A[i][j]==1):
+                                adjnodes.append(j)
+                     
+                return adjnodes
+        
         def getAdj(self,A):
              n=self.N
              print(n)
@@ -84,6 +118,20 @@ class Graph:
                 A=self.getA()
                 pr=pageRank.pageRank(A)
                 return pr
+
+        def gettopology(self):
+                
+                A=self.getA()
+                n=self.getN()
+                """pr: PageRank classification of nodes"""
+                pr=self.pageRank()
+                """sorting of pagerank list of nodes in descending order"""
+                lg=len(pr)
+                Node_PR=list()
+                for i in range(0,lg):
+                        Node_PR.append([i,pr[i]])
+
+                return Node_PR, n, A
                 
         def getPDS(self):
                 """get vector giving power dominating set - optimal PMU configuration"""
@@ -168,13 +216,14 @@ class Graph:
                         if obsvec[i]==0:
                                 return 0
                 return 1
-
+        """
         def isobs_constr(self,obsvec):
                 l=len(obsvec)
                 for i in range(0,l):
                         if obsvec[i]==0:
                                 return 0
                 return 1
+        """
         
         def endnodes(self):
                 """get list of endnodes in graph (nodes with only one neighbour)"""

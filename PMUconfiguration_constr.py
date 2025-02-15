@@ -1,14 +1,107 @@
 from PMUconfiguration import PMUconfiguration
 import numpy as np
-
+import random
 
 class PMUconfiguration_constr(PMUconfiguration):
 
-    def PPA1(self,A):
+    def __init__(self,N,nImes):
+        self.PMUvec=np.zeros(N)
+        self.Imes=list()
+        self.nImes=nImes
+
+    def getnImes(self):
+        return self.nImes
+
+    def getImes(self):
+        return self.Imes
+
+    def addImes2(self,Imes):
+        for e in Imes:
+            self.Imes.append((e[0],e[1]))
+
+    def addPMU2(self,i,nImes,G):
+        """add PMU at node i"""
+        self.PMUvec[i]=1
+        adjnodes=G.get_adjacentnodes(i)
+        nodesImes=random.sample(adjnodes,nImes)
+        Imes=list()
+        lg=len(adjnodes)
+        for k in range(0,lg):
+            Imes.append([i,adjnodes[k]])
+        
+        self.addImes2(Imes)
+
+    """        
+    def setPMUconfig(self,PMUconfig):
+        
+        v=self.getPMUconfig()
+        Imes=self.getImes()
+        l=len(v)
+        
+        #for i in range(0,l):
+        #    self.PMUvec[i]=v[i]
+        self.PMUvec=[e for e in v]
+
+        for e in Imes:
+            self.Imes.append(e[0], e[1])
+    """                         
+
+    def setPMUconfigv(self,v):
+        """set PMUvec"""
+        l=len(v)
+        self.PMUvec=[e for e in v]
+        """for i in range(0,l):
+            self.PMUvec[i]=v[i]
+        """
+
+    def setPMUconfigI(self,Imes):
+        self.Imes=list()
+        for e in Imes:
+            self.Imes.append((e[0], e[1]))
+
+        
+    def copyPMUconfig(self,PMUconfig):
+        """copy PMUconfig"""
+        v=PMUconfig.getPMUconfig()
+        Imes=PMUconfig.getImes()
+        self.setPMUconfigv(v)
+        self.setPMUconfigI(Imes)
+        return self
+    
+    
+    def ppa1_addmes(self,g,nImeas,obsvec):
+          """add measurements to pmu at end node if nImeas>1"""
+          Node_PR, n, A=g.gettopology()
+        
+          adjnode=self.Imes[0][1]  
+          startnode=self.Imes[0][0]          
+          if (nImeas>1):
+              
+              adjnodespr=list()
+              for k in range(0,n):
+                  if (A[startnode][k]==1):
+                      adjnodespr.append(Node_PR[k])
+              lg=len(adjnodespr)
+              adjnodespr.sort(key=lambda x:x[1],reverse=True)
+              id=0
+
+              toadd=nImeas-1
+              for l in range(0,toadd):
+                  if (l<lg):
+                      k=adjnodespr[id][0]
+                      #if (k!=startnode):                      
+                      self.Imes.append([startnode,k])
+                      obsvec[k]=1
+                  id=id+1
+                  
+          return obsvec
+    
+    
+    def PPA1(self,g,nImeas):
           """first part of PageRank Placement Algorithm:"""
           """placement of a PMU at adjacent node of nodes with only one neighbour"""
-          n=len(A)
-          I_measurements=list()
+          Node_PR, n, A=g.gettopology()
+
           obsvec=np.zeros(n)
         
           for i in range(0,n):
@@ -20,16 +113,19 @@ class PMUconfiguration_constr(PMUconfiguration):
                   for j in range(0,n):
                       if (A[i][j]==1):
                           self.addPMU(j)
-                          I_measurements.append([j,i])
+                          self.Imes.append([j,i])
                           obsvec[i]=1
                           obsvec[j]=1
-          return I_measurements, obsvec
-    
-    def addImes(self,j,AdjNode_PR,obs,obsvec,I_measurements,nImeas,nmeas):
+          obsvec=self.ppa1_addmes(g,nImeas,obsvec)
+          return obsvec
 
-
-        if (nmeas==nImeas):
-            return obsvec,I_measurements
+          
+    def addImes(self,j,AdjNode_PR,obs,obsvec,nImeas,g):
+        
+        nmeas=0
+        #if (nImeas==nmeas):
+        #    return obsvec,I_measurements
+        
         nAdj=len(AdjNode_PR)
         brmes=list()
         k=0
@@ -38,34 +134,33 @@ class PMUconfiguration_constr(PMUconfiguration):
             i=a[0]
             if (nmeas<nImeas):
 
-                print('i=',i)
+                #print('i=',i)
             
-                if (obsvec[i]==obs):
-                    print('measurement ',j,'-',i)
-                    I_measurements.append([j,i])
+                if (obsvec[i]==0):
+                    #print('measurement ',j,'-',i)
+                    self.Imes.append([j,i])
                     brmes.append(i)
                     obsvec[i]=1
                     nmeas=nmeas+1
-
-            
-        
+        obsvec=self.ppa1_addmes(g,nImeas,obsvec)
+                
         if (nmeas<nImeas):
             k=0
             for a in AdjNode_PR:
                 i=a[0]
                 if (i not in brmes):
-                    print('2')
-                    I_measurements.append([j,i])
+                    #print('2')
+                    self.Imes.append([j,i])
                     brmes.append(i)
                     obsvec[i]=1
                     nmeas=nmeas+1
                 if (nmeas==nImeas):break
                 k=k+1
             
-        return obsvec,I_measurements
+        return self
                 
             
-    def selectbranches(self,pr,A,j,obsvec,I_measurements,nImeas):
+    def selectbranches(self,pr,A,j,obsvec,nImeas,g):
         """select branches for PMU current measurements"""
         nmeas=0
         n=len(A)
@@ -75,19 +170,20 @@ class PMUconfiguration_constr(PMUconfiguration):
                 AdjNode_PR.append([k,pr[k]])
 
         AdjNode_PR.sort(key=lambda x:x[1],reverse=True)
-        print('node ',j)
-        print(AdjNode_PR)
+        #print('node ',j)
+        #print(AdjNode_PR)
 
-        obsvec,I_measurements=self.addImes(j,AdjNode_PR,0,obsvec,I_measurements,nImeas,nmeas)
+        PMUconfig=self.addImes(j,AdjNode_PR,0,obsvec,nImeas,g)
        
 
-        return obsvec, I_measurements
+        return PMUconfig
 
 
     
-    def PPA2(self,g,n_Imeas,I_measurements,obsvec):
+    def PPA2(self,g,nImeas,obsvec):
         """second part of PageRank Placement Algorithm:"""
         """placement of PMUs at most important nodes"""
+        
         A=g.getA()
         n=g.getN()
         """pr: PageRank classification of nodes"""
@@ -96,24 +192,89 @@ class PMUconfiguration_constr(PMUconfiguration):
         lg=len(pr)
         Node_PR=list()
         for i in range(0,lg):
-            Node_PR.append([i,pr[i]])
-       
+               Node_PR.append([i,pr[i]])
+               
         Node_PR.sort(key=lambda x:x[1],reverse=True)
       
         """Placement of PMUs"""
-        obsvec=np.zeros(n)
+        
         for a in Node_PR:
             i=a[0]
             if (obsvec[i]==0):
                 self.addPMU(i)
-                print('i=',i)
+                #print('i=',i)
                 obsvec[i]=1
                 """selection of branches for current measurements"""
-                obsvec, I_measurements=self.selectbranches(pr,A,i,obsvec,I_measurements,n_Imeas)
+                PMUconfig=self.selectbranches(pr,A,i,obsvec,nImeas,g)
 
-            o=g.isobs_constr(obsvec)
-            print('o=',o)
+            o=g.isobs_constr(PMUconfig)
+            #o=g.isobs(obsvec)
+            #print('o=',o)
             if (o==1):
-                print('obsvec=',obsvec)
-                return I_measurements
-        return I_measurements
+                #print('obsvec=',obsvec)
+                return obsvec 
+        return PMUconfig
+
+    def shuffle_constr(self,g,nImes):        
+            l=0
+            vec=self.getPMUconfig()
+            endnodes=g.endnodes()
+            A=g.getA()
+            l=len(vec)
+
+            vec2=np.zeros(l)
+            vec2=[e for e in vec]
+            """
+            for i in range(0,l):
+                vec2[i]=vec[i]
+            """
+            nodes=self.getcandidates(endnodes)
+            chpmu=list()
+            
+            while len(chpmu)==0:
+                j=random.choice(nodes)
+                chpmu=self.adjacentPMU(A,j)
+            """
+            print('cand=',j)
+            print('chpmu=',chpmu)
+            print(vec)
+            """
+            p=random.choice(chpmu) #cha
+            #print('from ',p, ' to ',j)
+            """move adjacent pmu to random node j"""
+            vec2[p]=0
+            vec2[j]=1
+
+            N=g.getN()
+            PMUconfig2=PMUconfiguration_constr(N,nImes)
+            PMUconfig2.setPMUconfigv(vec2)
+
+            Imes2=g.selbranches(self,p)
+            """add current measurements from j"""
+            adjnodes=g.get_adjacentnodes(j)
+            nodesImes=random.sample(adjnodes,nImes)
+            lg=len(nodesImes)
+            for k in range(0,lg):
+                     s=[j,nodesImes[k]]
+                     Imes2.append(s)
+
+            PMUconfig2.setPMUconfigI(Imes2)
+            
+            
+            return PMUconfig2, j
+        
+    def getPMUmes(self):
+            mes1=self.getPMUnodes()
+            mes2=self.getImes()
+            measurements=list()
+
+            lg1=len(mes1)
+            lg2=len(mes2)
+            
+            for i in range(0,lg1):
+                measurements.append([mes1[j],0])
+
+            for j in range(0,lg2):
+                measurements.append([mes2[j][0],mes2[j][1]])
+                                                    
+            return measurements

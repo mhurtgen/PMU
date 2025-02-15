@@ -11,10 +11,13 @@ class ILS_zeroinj(ILS):
         while (j<self.T):
                
                 pmu=PMUconfig.getPMUnodes()
+                n=PMUconfig.getnPMU()
+                #print(n)
                 
                 PMUconfig,i=G.perturb(PMUconfig)
                 if (i==1000): break
                 PMUconfig=G.removeextra(PMUconfig)
                
                 j=j+1
+                
         return PMUconfig
