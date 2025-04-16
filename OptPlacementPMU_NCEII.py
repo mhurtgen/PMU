@@ -1,4 +1,4 @@
-import Graph_NCEII, PMUconfiguration_NCEII, pickle as p, ILS
+import Graph_NCEII, PMUconfiguration_NCEII, pickle as p, ILS_NCEII
 
 
 class OptPlacementPMU_NCEII:
@@ -12,16 +12,16 @@ class OptPlacementPMU_NCEII:
          ed=self.g.endnodes()
          return n,A,ed
 
-    def PPA(self):
+    def PPA(self,en):
          
          n,A,ed=self.getinfo()
          """PageRAnk"""
 
-         PMUconfig=PMUconfiguration_NCEII.PMUconfiguration(n)
+         PMUconfig=PMUconfiguration_NCEII.PMUconfiguration_NCEII(n)
 
          """Implementing PageRank Placement Algorithm for PMU placement"""
-         PMUconfig.PPA1(A)
-
+         PMUconfig.PPA1(en)
+         
          pr=self.g.pageRank()
          PMUconfig.PPA2(self.g,pr)
          
@@ -31,13 +31,13 @@ class OptPlacementPMU_NCEII:
     def ILS(self):
          """Iterated Local search starting from PMU configuration obtained by PPA"""
 
-         n,A,ed=self.getinfo()
+         n,A,en=self.getinfo()
          
-         PMUconfig=self.PPA()
+         PMUconfig=self.PPA(en)
 
          #ILS1=ILS.ILS(10,10,n)
          #ILS1=ILS.ILS(10,30,n)
-         ILS1=ILS.ILS(20,30,n)
+         ILS1=ILS_NCEII.ILS_NCEII(20,30,n)
          PMUconfig=ILS1.locsearch(self.g,PMUconfig)
          PMUconfigmin=ILS1.IteratedLocalSearch(self.g,PMUconfig,2)
          n_min=PMUconfigmin.getnPMU()

@@ -2,25 +2,18 @@ from PMUconfiguration import PMUconfiguration
 import numpy as np
 import random
 
-class PMUconfiguration_NCIEE(PMUconfiguration):
+class PMUconfiguration_NCEII(PMUconfiguration):
 
-   def PPA1(self,A):
+   def PPA1(self,en):
         """first part of PageRank Placement Algorithm:"""
         """placement of a PMU at end node (node with only one neighbour)"""
-        n=len(A)
+        n=len(en)
         
         for i in range(0,n):
-            sum=0
-            for j in range(0,n):
-                sum=sum+A[i][j]
-             
-            if (sum==1):
-                for j in range(0,n):
-                    if (A[i][j]==1):
-                        self.addPMU(i)
-       
+           self.addPMU(i)
+           
    
-   def PPA2(self,g,pr,nopmu):
+   def PPA2(self,g,pr):
         """second part of PageRank Placement Algorithm:"""
         """placement of PMUs at most important nodes"""
         """pr: PageRank classification of nodes"""
@@ -39,13 +32,13 @@ class PMUconfiguration_NCIEE(PMUconfiguration):
         for a in Node_PR:
             i=a[0]
             if (obsvec[i]==0):
-                if (i not in nopmu):
+                #if (i not in nopmu):
                     self.addPMU(i)
                     obsvec=g.observability(self)    
                     o=g.isobs(self)
                     if (o==1):break
                     
-def getcandidates(self,endnodes,A):
+   def getcandidates(self,endnodes,A):
         """get potential nodes for PMU placements"""
         """no nodes with pmus, or end nodes or nodes adjacent to end nodes"""
         
@@ -78,3 +71,34 @@ def getcandidates(self,endnodes,A):
                 nodes.remove(pmu[j])
         
         return nodes
+
+
+   def shuffle(self,endnodes,A):        
+        l=0
+        vec=self.getPMUconfig()
+        
+        l=len(vec)
+
+        vec2=np.zeros(l)
+        for i in range(0,l):
+            vec2[i]=vec[i]
+        
+        nodes=self.getcandidates(endnodes,A)
+
+        
+        j=random.choice(nodes)
+
+        chpmu=self.adjacentPMU(A,j)
+        """
+        print('cand=',j)
+        print('chpmu=',chpmu)
+        print(vec)
+        """
+        p=random.choice(chpmu) #cha
+        #print('from ',p, ' to ',j)
+        """move adjacent pmu to random node j"""
+        vec2[p]=0
+        vec2[j]=1
+        
+        return vec2, j
+        
