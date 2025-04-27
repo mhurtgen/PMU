@@ -3,11 +3,11 @@ from yaml import load, dump
 
 
 
-with open('Grids/branchcase14.pickle','rb') as f:
+with open('Grids/branchcase118.pickle','rb') as f:
    branch=p.load(f)
 
 
-N=14
+N=118
 
 
 
@@ -21,6 +21,7 @@ print('en=',en)
 PMUconfigPPA=OptPlacement.PPA(en)
 pmu=PMUconfigPPA.getPMUnodes()
 print(pmu)
+
 n_pmu=PMUconfigPPA.getnPMU()
 print(n_pmu)
 pmu1=PMUconfigPPA.getPMUnodes()
@@ -33,6 +34,6 @@ print(n_pmu)
 pmu1=PMUconfigmin.getPMUnodes()
 print(pmu1)
 
-#PMUconfigmin.export()
+PMUconfigmin.export()
 
 G.representation(PMUconfigmin)
