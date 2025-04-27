@@ -10,7 +10,7 @@ class PMUconfiguration_NCEII(PMUconfiguration):
         n=len(en)
         
         for i in range(0,n):
-           self.addPMU(i)
+           self.addPMU(en[i])
            
    
    def PPA2(self,g,pr):
@@ -58,7 +58,7 @@ class PMUconfiguration_NCEII(PMUconfiguration):
             nodes.remove(endnode)
             #no nodes adjacent to end nodes are chosen
             for j in range(0,n):
-               if A[endnode][j]==1:
+               if ((A[endnode][j]==1)&(j in nodes)):
                     nodes.remove(j)
         
         pmu=self.getPMUnodes()
