@@ -1,6 +1,7 @@
 from PMUconfiguration import PMUconfiguration
 import numpy as np
 import random
+from yaml import safe_load
 
 class PMUconfiguration_constr(PMUconfiguration):
 
@@ -23,11 +24,23 @@ class PMUconfiguration_constr(PMUconfiguration):
         """add PMU at node i"""
         self.PMUvec[i]=1
         adjnodes=G.get_adjacentnodes(i)
-        nodesImes=random.sample(adjnodes,nImes)
+
+        nadj=len(adjnodes)
         Imes=list()
-        lg=len(adjnodes)
-        for k in range(0,lg):
-            Imes.append([i,adjnodes[k]])
+        
+        if (nImes<=nadj):
+            nodesImes=random.sample(adjnodes,nImes)
+            for k in range(0,nImes):
+                Imes.append([i,adjnodes[k]])
+        
+        elif (nImes>nadj):
+            nodesImes=random.sample(adjnodes,nadj)
+            for k in range(0,nadj):
+                Imes.append([i,adjnodes[k]])
+         
+        
+        
+        
         
         self.addImes2(Imes)
 
@@ -207,7 +220,7 @@ class PMUconfiguration_constr(PMUconfiguration):
                 """selection of branches for current measurements"""
                 PMUconfig=self.selectbranches(pr,A,i,obsvec,nImeas,g)
 
-            o=g.isobs_constr(PMUconfig)
+            o=g.isobs_constr(self)
             #o=g.isobs(obsvec)
             #print('o=',o)
             if (o==1):
@@ -252,7 +265,14 @@ class PMUconfiguration_constr(PMUconfiguration):
             Imes2=g.selbranches(self,p)
             """add current measurements from j"""
             adjnodes=g.get_adjacentnodes(j)
-            nodesImes=random.sample(adjnodes,nImes)
+
+            nadj=len(adjnodes)
+            
+            if (nImes<=nadj):
+                nodesImes=random.sample(adjnodes,nImes)
+            elif (nImes>nadj):
+                nodesImes=random.sample(adjnodes,nadj)
+                
             lg=len(nodesImes)
             for k in range(0,lg):
                      s=[j,nodesImes[k]]
@@ -264,17 +284,24 @@ class PMUconfiguration_constr(PMUconfiguration):
             return PMUconfig2, j
         
     def getPMUmes(self):
-            mes1=self.getPMUnodes()
-            mes2=self.getImes()
+            pmus=self.getPMUnodes()
+            Imeasurements=self.getImes()
             measurements=list()
 
-            lg1=len(mes1)
-            lg2=len(mes2)
-            
-            for i in range(0,lg1):
-                measurements.append([mes1[j],0])
+            return pmus, Imeasurements
 
-            for j in range(0,lg2):
-                measurements.append([mes2[j][0],mes2[j][1]])
-                                                    
-            return measurements
+        
+    def fromfile(self,file1,file2):
+        filename1='Results/'+file1
+        filename2='Results/'+file2
+        
+        with open(filename1,'r') as f:
+            
+            pos=safe_load(f)
+            for i in pos:
+                self.addPMU(i)
+
+        with open(filename2,'r') as g:
+            lines_all=g.readlines()
+        print(lines_all)
+        
