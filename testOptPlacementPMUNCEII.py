@@ -1,4 +1,6 @@
-import OptPlacementPMU, pickle as p, random, numpy as np, Graph, PMUconfiguration
+import OptPlacementPMU, pickle as p, random, numpy as np, Graph,
+PMUconfiguration_NCEII
+
 from yaml import load, dump
 import getinfoNCEII as gi
 
@@ -21,6 +23,8 @@ OptPlacement=OptPlacementPMU.OptPlacementPMU(N,branch)
 n,A,ed=OptPlacement.getinfo()
 print('N=',n)
 
+PMUconfig=PMUconfiguration_NCIEE.PMUconfiguration_NCIEE()
+print(PMUconfig.getDTS())
 
 PMUconfigPPA=OptPlacement.PPA()
 n_pmuppa=PMUconfigPPA.getnPMU()

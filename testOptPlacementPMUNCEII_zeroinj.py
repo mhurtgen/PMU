@@ -1,4 +1,4 @@
-import PMUconfiguration_zeroinj, OptPlacementPMU_zeroinjNCEII, pickle as p, random, numpy as np, Graph_zeroinjectionNCEII, getinfoNCEII as gi
+import PMUconfiguration_zeroinj_NCEII, OptPlacementPMU_zeroinjNCEII, pickle as p, random, numpy as np, Graph_zeroinjectionNCEII, getinfoNCEII as gi
 import yaml
 from yaml import load, dump
 
@@ -19,7 +19,7 @@ G=Graph_zeroinjectionNCEII.Graph_zeroinjectionNCEII(N,branch,zero_injections)
 OptPlacement_zeroinj=OptPlacementPMU_zeroinjNCEII.OptPlacementPMU_zeroinjNCEII(N,branch,zero_injections)
 
 
-PMUconfig0=PMUconfiguration_zeroinj.PMUconfiguration_zeroinj(N)
+PMUconfig0=PMUconfiguration_zeroinj_NCEII.PMUconfiguration_zeroinj_NCEII(N)
 #PMUconfig0=PMUconfiguration.PMUconfiguration(N)
 
 PMUconfig0.setPMUvec(pmu)
