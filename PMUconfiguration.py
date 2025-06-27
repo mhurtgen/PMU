@@ -1,5 +1,5 @@
 import numpy as np, random
-from yaml import load, dump
+from yaml import load, dump, safe_load
 
 class PMUconfiguration:
     def __init__(self,N):
@@ -13,6 +13,7 @@ class PMUconfiguration:
         """set PMUvec"""
         l=len(v)
         for i in range(0,l):
+           
             self.PMUvec[i]=v[i]
 
     def copyPMUconfig(self,PMUconfig):
@@ -216,6 +217,15 @@ class PMUconfiguration:
 
             with open(filename, 'w') as file:
                 dump(pmu,file)
+
+    def fromfile(self,file):
+        filename='Results/'+file
+
+        with open(filename,'r') as f:
+            
+            pos=safe_load(f)
+            for i in pos:
+                self.addPMU(i)
 
         
 
