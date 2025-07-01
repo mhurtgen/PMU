@@ -13,7 +13,7 @@ class Graph:
                 
         def representation(self,PMUconfig):#,Obsvec):
                 """representation of power system with colored nodes if pmu is present"""
-                g = graphviz.Graph()
+                g = graphviz.Graph(engine='fdp')
                 n=self.N
 
                 vecPMU=PMUconfig.getPMUconfig()
@@ -279,7 +279,7 @@ class Graph:
                 while (obs==0)&(i<1000):
                                                 
                         v=PMUconfig.shuffle(endnodes,A)
-                        PMUconfig2.setPMUconfig(v)
+                        PMUconfig2.setPMUconfig(v[0])
 
                                                 
                         obs=self.isobs(PMUconfig2)

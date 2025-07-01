@@ -158,7 +158,7 @@ zero injection node is also observed, then the remaining adjacent node is also o
     
      def representation(self,PMUconfig):#,Obsvec):
                 """representation of power system with green nodes if pmu is present, cyan nodes if node is a zero-injection node, yellow if it is observed by a pmu"""
-                g = graphviz.Graph()
+                g = graphviz.Graph(engine='fdp')
                 n=self.N
                 zeroinj=self.get_zeroinj()
                 vecPMU=PMUconfig.getPMUconfig()
