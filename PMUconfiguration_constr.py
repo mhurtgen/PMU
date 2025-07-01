@@ -2,6 +2,7 @@ from PMUconfiguration import PMUconfiguration
 import numpy as np
 import random
 from yaml import safe_load
+import re
 
 class PMUconfiguration_constr(PMUconfiguration):
 
@@ -303,5 +304,33 @@ class PMUconfiguration_constr(PMUconfiguration):
 
         with open(filename2,'r') as g:
             lines_all=g.readlines()
-        print(lines_all)
+
+        Imes=list()
+        br=list()
+        nl=len(lines_all)
+        i=0
+        #for line in lines_all:
+        #for i in range(0,nl):
+        while (i<nl):
+            line=lines_all[i]
+            digits_line=re.findall(r'\d+',line)
+            if (len(digits_line)!=0):
+                
+                r=int(digits_line[0])
+                i=i+1
+                line=lines_all[i]
+                digits_line=re.findall(r'\d+',line)
+                s=int(digits_line[0])
+                Imes.append([r,s])
+            i=i+1
+                #br.append(digits_line)
+#                if (len(br)==2):
+#                   
+#                    Imes.append([br[0],br[1]])
+#                    #self.addImes2([br[0],br[1]])
+#                    br=list()
+
+        self.addImes2(Imes)
+            
+            
         

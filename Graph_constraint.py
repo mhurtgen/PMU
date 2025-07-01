@@ -20,7 +20,7 @@ class Graph_constraint(Graph):
     
     def representation(self,PMUconfig):#,Obsvec):
                 """representation of power system with colored nodes if pmu is present; thick branches if measurements made on branch"""
-                g = graphviz.Graph()
+                g = graphviz.Graph(engine='fdp')
                 n=self.N
                 nImes=PMUconfig.getnImes()
                 vecPMU=PMUconfig.getPMUconfig()
@@ -94,7 +94,15 @@ class Graph_constraint(Graph):
         niter=2*len(adjnodes)
         
         for i in range(0,niter):
-             nodesImes=random.sample(adjnodes,nImes)
+
+             nadj=len(adjnodes)
+            
+             if (nImes<=nadj):
+                nodesImes=random.sample(adjnodes,nImes)
+             elif (nImes>nadj):
+                nodesImes=random.sample(adjnodes,nadj)
+            
+             
              #return branches other than those starting at p
              nbImeas=len(Imeas)
 
@@ -163,7 +171,7 @@ class Graph_constraint(Graph):
                         
                          i=i+1
 
-                return PMUconfig0,i
+                return PMUconfig,i
 
     def removeextra(self,PMUconfig):
                 """test if a pmu can be removed while keeping observability."""
